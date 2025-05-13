@@ -47,6 +47,7 @@ import mega.privacy.android.app.presentation.hidenode.HiddenNodesOnboardingActiv
 import mega.privacy.android.app.presentation.imagepreview.ImagePreviewViewModel.Companion.FETCHER_PARAMS
 import mega.privacy.android.app.presentation.imagepreview.ImagePreviewViewModel.Companion.IMAGE_NODE_FETCHER_SOURCE
 import mega.privacy.android.app.presentation.imagepreview.ImagePreviewViewModel.Companion.IMAGE_PREVIEW_ADD_TO_ALBUM
+import mega.privacy.android.app.presentation.imagepreview.ImagePreviewViewModel.Companion.IMAGE_PREVIEW_CURRENT_SORT
 import mega.privacy.android.app.presentation.imagepreview.ImagePreviewViewModel.Companion.IMAGE_PREVIEW_IS_FOREIGN
 import mega.privacy.android.app.presentation.imagepreview.ImagePreviewViewModel.Companion.IMAGE_PREVIEW_MENU_OPTIONS
 import mega.privacy.android.app.presentation.imagepreview.ImagePreviewViewModel.Companion.PARAMS_CURRENT_IMAGE_NODE_ID_VALUE
@@ -88,6 +89,7 @@ import nz.mega.sdk.MegaApiJava
 import nz.mega.sdk.MegaApiJava.INVALID_HANDLE
 import nz.mega.sdk.MegaNode
 import javax.inject.Inject
+import mega.privacy.android.app.presentation.photos.model.Sort
 
 /**
  * Activity to view an image node
@@ -514,14 +516,19 @@ class ImagePreviewActivity : BaseActivity() {
     companion object {
         private const val TAG = "ImagePreviewActivity"
 
+        /**
+         * Create intent for ImagePreviewActivity
+         */
+        @JvmOverloads
         fun createIntent(
             context: Context,
             imageSource: ImagePreviewFetcherSource,
             menuOptionsSource: ImagePreviewMenuSource,
             anchorImageNodeId: NodeId? = null,
-            params: Map<String, Any> = mapOf(),
             isForeign: Boolean = false,
+            params: Map<String, Any?> = emptyMap(),
             enableAddToAlbum: Boolean = false,
+            currentSort: Sort? = null,
         ): Intent {
             return Intent(context, ImagePreviewActivity::class.java).apply {
                 putExtra(IMAGE_NODE_FETCHER_SOURCE, imageSource)
@@ -530,6 +537,7 @@ class ImagePreviewActivity : BaseActivity() {
                 putExtra(FETCHER_PARAMS, bundleOf(*params.toList().toTypedArray()))
                 putExtra(IMAGE_PREVIEW_IS_FOREIGN, isForeign)
                 putExtra(IMAGE_PREVIEW_ADD_TO_ALBUM, enableAddToAlbum)
+                putExtra(IMAGE_PREVIEW_CURRENT_SORT, currentSort?.name)
             }
         }
 
@@ -549,6 +557,7 @@ class ImagePreviewActivity : BaseActivity() {
                 params = params,
                 isForeign = isForeign,
                 enableAddToAlbum = false,
+                currentSort = null,
             )
         }
     }

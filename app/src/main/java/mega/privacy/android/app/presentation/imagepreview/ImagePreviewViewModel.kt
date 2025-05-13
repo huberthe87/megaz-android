@@ -73,6 +73,7 @@ import mega.privacy.android.domain.usecase.setting.MonitorShowHiddenItemsUseCase
 import timber.log.Timber
 import java.io.File
 import javax.inject.Inject
+import mega.privacy.android.app.presentation.photos.model.Sort
 
 /**
  * ViewModel for business logic regarding the image preview.
@@ -114,6 +115,12 @@ class ImagePreviewViewModel @Inject constructor(
 ) : ViewModel() {
     private val imagePreviewFetcherSource: ImagePreviewFetcherSource
         get() = savedStateHandle[IMAGE_NODE_FETCHER_SOURCE] ?: ImagePreviewFetcherSource.TIMELINE
+
+    private val currentSort: Sort?
+        get() {
+            val sortName: String? = savedStateHandle[IMAGE_PREVIEW_CURRENT_SORT]
+            return sortName?.let { Sort.valueOf(it) }
+        }
 
     private val params: Bundle
         get() = savedStateHandle[FETCHER_PARAMS] ?: Bundle()
@@ -230,7 +237,16 @@ class ImagePreviewViewModel @Inject constructor(
 
     private fun monitorImageNodes() {
         val imageFetcher = imageNodeFetchers[imagePreviewFetcherSource] ?: return
-        imageFetcher.monitorImageNodes(params)
+
+        val fetcherParams = Bundle(params) // Create a mutable copy of params
+        if (imagePreviewFetcherSource == ImagePreviewFetcherSource.MEDIA_DISCOVERY) {
+            currentSort?.let {
+                Timber.d("ImagePreviewViewModel: Media Discovery fetch with sort: $it")
+                fetcherParams.putString(IMAGE_PREVIEW_CURRENT_SORT_FETCHER_PARAM, it.name)
+            } ?: Timber.d("ImagePreviewViewModel: Media Discovery fetch with NO sort specified in ViewModel.")
+        }
+
+        imageFetcher.monitorImageNodes(fetcherParams) // Pass the potentially modified bundle
             .catch { Timber.e(it) }
             .mapLatest { imageNodes ->
                 val (currentImageNodeIndex, currentImageNode) = findCurrentImageNode(
@@ -885,11 +901,13 @@ class ImagePreviewViewModel @Inject constructor(
         imagePreviewFetcherSource == ImagePreviewFetcherSource.OFFLINE && !state.value.isOnline
 
     companion object {
-        const val IMAGE_NODE_FETCHER_SOURCE = "image_node_fetcher_source"
-        const val IMAGE_PREVIEW_MENU_OPTIONS = "image_preview_menu_options"
-        const val FETCHER_PARAMS = "fetcher_params"
-        const val PARAMS_CURRENT_IMAGE_NODE_ID_VALUE = "currentImageNodeIdValue"
-        const val IMAGE_PREVIEW_IS_FOREIGN = "image_preview_is_foreign"
-        const val IMAGE_PREVIEW_ADD_TO_ALBUM = "image_preview_add_to_album"
+        const val IMAGE_NODE_FETCHER_SOURCE = "IMAGE_NODE_FETCHER_SOURCE"
+        const val IMAGE_PREVIEW_MENU_OPTIONS = "IMAGE_PREVIEW_MENU_OPTIONS"
+        const val IMAGE_PREVIEW_IS_FOREIGN = "IMAGE_PREVIEW_IS_FOREIGN"
+        const val PARAMS_CURRENT_IMAGE_NODE_ID_VALUE = "PARAMS_CURRENT_IMAGE_NODE_ID_VALUE"
+        const val FETCHER_PARAMS = "FETCHER_PARAMS"
+        const val IMAGE_PREVIEW_ADD_TO_ALBUM = "IMAGE_PREVIEW_ADD_TO_ALBUM"
+        const val IMAGE_PREVIEW_CURRENT_SORT = "IMAGE_PREVIEW_CURRENT_SORT"
+        const val IMAGE_PREVIEW_CURRENT_SORT_FETCHER_PARAM = "IMAGE_PREVIEW_CURRENT_SORT_FETCHER_PARAM"
     }
 }

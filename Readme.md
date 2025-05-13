@@ -249,15 +249,17 @@ This document summarizes recent changes made to the project.
     *   The project's Java version has been successfully upgraded to target Java 21.
     *   This involved updates to the root `build.gradle.kts`, module-level `build.gradle.kts` files (for `analytics`, `lint`, `shared/original-core-ui`, `navigation`, `core/formatter`, `shared/sync`, `legacy-core-ui`, `app`, `data`, `core-test`, `icon-pack`, `feature/chat`, `feature/devicecenter`, `feature/sync`, `shared/resources`), and `gradle.properties` to ensure compatibility and correct JVM targeting for Java compilation, Kotlin compilation, and KSP tasks.
 
-2.  **UI Theming and Color Correction:**
-    *   Resolved issues where UI components were not correctly using colors from the `OriginalTheme`.
-    *   **`AlbumPhotosSelectionScreen.kt`**:
-        *   Modified the `FloatingActionButton` to remove explicit background color, allowing it to inherit from the theme.
-        *   Updated `AlbumPhotosSelectionHeader` (TopAppBar) contents (title, icons) to use appropriate theme colors (`MaterialTheme.colors.onPrimary`, `MaterialTheme.colors.secondary`, and muted surface colors) instead of hardcoded values, ensuring consistency with the light/dark theme.
-    *   **`CreateAlbumDialog.kt`**:
-        *   Adjusted dialog action button text colors to use theme-appropriate colors (`MaterialTheme.colors.primary`) instead of hardcoded `accent_900`, aligning them with the standard text button style.
+2.  **Theming and UI Consistency:**
+    *   Refactored UI components in `AlbumPhotosSelectionScreen.kt` and `CreateAlbumDialog.kt` to align with `OriginalTheme` color definitions, removing hardcoded colors and promoting a consistent look and feel. This primarily involved ensuring Floating Action Buttons, headers, and dialog text utilized theme-defined primary, secondary, and onSurface colors.
 
-3.  **Git Repository Cleanup:**
-    *   Ensured that compiled output directories (`domain/bin/`, `lint/bin/`, `build-logic/convention/bin/`) are not tracked by Git, in line with `.gitignore` settings.
-    *   Removed the IDE-specific inspection profile (`.idea/inspectionProfiles/Project_Default.xml`) from Git tracking as it was already listed in `.gitignore`.
-    *   These changes were committed to the repository.
+3.  **Build Configuration and IDE Files:**
+    *   Addressed issues with build output directories (`domain/bin`, `lint/bin`, `build-logic/convention/bin`) and IDE configuration files (`.idea/inspectionProfiles/Project_Default.xml`) being incorrectly tracked by Git. These files were untracked using `git rm --cached` to ensure the repository remains clean of user-specific and build-generated files.
+
+4.  **Media Discovery Image Preview Sorting:**
+    *   **Problem:** Resolved an issue in the Media Discovery feature where the swiping order of images in the full-screen previewer did not respect the currently selected sort order from the main grid/list view. This led to a confusing user experience as changing the sort order (e.g., from newest to oldest) on the Media Discovery screen was not reflected when opening an image for a closer look.
+    *   **Solution:** The fix involved propagating the selected `Sort` enum from `MediaDiscoveryViewModel` through to the `ImagePreviewActivity` and subsequently to the `MediaDiscoveryImageNodeFetcher`.
+        *   `ImagePreviewProvider.kt`: Modified `startImagePreviewFromMD` to accept the `currentSort: Sort` parameter and pass it when creating the intent for `ImagePreviewActivity`.
+        *   `ImagePreviewActivity.kt`: Updated `createIntent` to include `currentSort.name` as an intent extra.
+        *   `ImagePreviewViewModel.kt`: Enhanced to retrieve the `currentSort` string from `SavedStateHandle`, convert it back to the `Sort` enum, and add it to the parameters bundle passed to the `ImageNodeFetcher`. It also now correctly parses `ImagePreviewFetcherSource` from its string name.
+        *   `MediaDiscoveryImageNodeFetcher.kt`: Updated to extract the `Sort` enum from the incoming bundle and apply the corresponding sorting logic to the list of images it fetches and provides to the previewer.
+    *   **Impact:** This ensures a consistent sort order between the Media Discovery grid/list and the image previewer, improving UI predictability and user experience. This also involved fixing related `ClassCastException` and `IllegalArgumentException` crashes that arose from incorrectly handling enum and custom type serialization in `Bundle` objects during the refactoring process.
