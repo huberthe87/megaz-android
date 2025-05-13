@@ -240,3 +240,24 @@ To use the *geolocation feature* you need a *Google Maps API key*:
 1. To get one, follow the directions here: https://developers.google.com/maps/documentation/android/signup.
 
 2. Once you have your key, replace the "google_maps_key" string in these files: `app/src/debug/res/values/google_maps_api.xml` and `app/src/release/res/values/google_maps_api.xml`.
+
+# Project Update Summary
+
+This document summarizes recent changes made to the project.
+
+1.  **Java Version Upgrade:**
+    *   The project's Java version has been successfully upgraded to target Java 21.
+    *   This involved updates to the root `build.gradle.kts`, module-level `build.gradle.kts` files (for `analytics`, `lint`, `shared/original-core-ui`, `navigation`, `core/formatter`, `shared/sync`, `legacy-core-ui`, `app`, `data`, `core-test`, `icon-pack`, `feature/chat`, `feature/devicecenter`, `feature/sync`, `shared/resources`), and `gradle.properties` to ensure compatibility and correct JVM targeting for Java compilation, Kotlin compilation, and KSP tasks.
+
+2.  **UI Theming and Color Correction:**
+    *   Resolved issues where UI components were not correctly using colors from the `OriginalTheme`.
+    *   **`AlbumPhotosSelectionScreen.kt`**:
+        *   Modified the `FloatingActionButton` to remove explicit background color, allowing it to inherit from the theme.
+        *   Updated `AlbumPhotosSelectionHeader` (TopAppBar) contents (title, icons) to use appropriate theme colors (`MaterialTheme.colors.onPrimary`, `MaterialTheme.colors.secondary`, and muted surface colors) instead of hardcoded values, ensuring consistency with the light/dark theme.
+    *   **`CreateAlbumDialog.kt`**:
+        *   Adjusted dialog action button text colors to use theme-appropriate colors (`MaterialTheme.colors.primary`) instead of hardcoded `accent_900`, aligning them with the standard text button style.
+
+3.  **Git Repository Cleanup:**
+    *   Ensured that compiled output directories (`domain/bin/`, `lint/bin/`, `build-logic/convention/bin/`) are not tracked by Git, in line with `.gitignore` settings.
+    *   Removed the IDE-specific inspection profile (`.idea/inspectionProfiles/Project_Default.xml`) from Git tracking as it was already listed in `.gitignore`.
+    *   These changes were committed to the repository.

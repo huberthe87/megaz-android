@@ -241,7 +241,7 @@ fun CreateNewAlbumDialog(
             ) {
                 Text(
                     text = stringResource(id = positiveButtonTextResID),
-                    color = MaterialTheme.colors.primary
+                    color = MaterialTheme.colors.onPrimary
                 )
             }
         },
@@ -262,7 +262,7 @@ fun CreateNewAlbumDialog(
             ) {
                 Text(
                     stringResource(id = sharedR.string.general_dialog_cancel_button),
-                    color = MaterialTheme.colors.primary
+                    color = MaterialTheme.colors.onPrimary
                 )
             }
         }
