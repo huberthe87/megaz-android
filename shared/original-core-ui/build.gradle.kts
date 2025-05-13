@@ -59,3 +59,17 @@ dependencies {
     testImplementation(testlib.bundles.ui.test)
     testImplementation(testlib.bundles.unit.test)
 }
+
+// Set KSP JVM target specifically for this module
+tasks.withType<com.google.devtools.ksp.gradle.KspTaskJvm>().configureEach {
+    compilerOptions {
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21)
+    }
+}
+
+// Set Kotlin JVM target specifically for this module
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
+    compilerOptions {
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21)
+    }
+}

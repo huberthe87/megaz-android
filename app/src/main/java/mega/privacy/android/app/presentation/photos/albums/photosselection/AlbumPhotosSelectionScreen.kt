@@ -197,7 +197,6 @@ fun AlbumPhotosSelectionScreen(
                             selectedPhotoIds = state.selectedPhotoIds,
                         )
                     },
-                    backgroundColor = accent_900,
                 ) {
                     Icon(
                         painter = painterResource(id = iconPackR.drawable.ic_check_medium_regular_outline),
@@ -253,6 +252,8 @@ private fun AlbumPhotosSelectionHeader(
     onClearSelectionClicked: () -> Unit,
 ) {
     val isLight = MaterialTheme.colors.isLight
+    val onPrimaryColor = MaterialTheme.colors.onPrimary
+    val secondaryColor = MaterialTheme.colors.secondary
 
     TopAppBar(
         title = {
@@ -260,7 +261,7 @@ private fun AlbumPhotosSelectionHeader(
                 if (numSelectedPhotos > 0) {
                     Text(
                         text = "$numSelectedPhotos",
-                        color = accent_900,
+                        color = secondaryColor,
                         fontWeight = FontWeight.W500,
                         style = MaterialTheme.typography.subtitle1,
                     )
@@ -274,12 +275,13 @@ private fun AlbumPhotosSelectionHeader(
                         overflow = TextOverflow.Ellipsis,
                         maxLines = 1,
                         style = MaterialTheme.typography.subtitle1,
+                        color = onPrimaryColor
                     )
 
                     if (isLocationDetermined) {
                         Text(
                             text = selectedLocation.text(),
-                            color = grey_alpha_054.takeIf { isLight } ?: white_alpha_054,
+                            color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f),
                             style = MaterialTheme.typography.caption,
                         )
                     }
@@ -291,9 +293,7 @@ private fun AlbumPhotosSelectionHeader(
                 Icon(
                     painter = painterResource(id = R.drawable.ic_arrow_back_white),
                     contentDescription = null,
-                    tint = accent_900.takeIf {
-                        numSelectedPhotos > 0
-                    } ?: (black.takeIf { isLight } ?: white),
+                    tint = if (numSelectedPhotos > 0) secondaryColor else onPrimaryColor,
                 )
             }
         },
@@ -303,9 +303,7 @@ private fun AlbumPhotosSelectionHeader(
                     Icon(
                         painter = painterResource(id = R.drawable.ic_filter_light),
                         contentDescription = null,
-                        tint = accent_900.takeIf {
-                            numSelectedPhotos > 0
-                        } ?: (black.takeIf { isLight } ?: white),
+                        tint = if (numSelectedPhotos > 0) secondaryColor else onPrimaryColor,
                     )
                 }
             }
@@ -315,7 +313,7 @@ private fun AlbumPhotosSelectionHeader(
                     Icon(
                         painter = painterResource(id = R.drawable.ic_dots_vertical_white),
                         contentDescription = null,
-                        tint = accent_900,
+                        tint = secondaryColor,
                     )
                 }
 

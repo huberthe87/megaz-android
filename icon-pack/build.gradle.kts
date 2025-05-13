@@ -20,3 +20,10 @@ dependencies {
     lintChecks(project(":lint"))
     implementation(lib.kotlin.ktx)
 }
+
+// Set Kotlin JVM target specifically for this module
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
+    compilerOptions {
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21)
+    }
+}

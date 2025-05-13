@@ -11,6 +11,24 @@ plugins {
     alias(plugin.plugins.jetbrains.kotlin.android) apply false
 }
 
+// Configure Java toolchain for all projects
+allprojects {
+    tasks.withType<JavaCompile>().configureEach {
+        // options.release.set(21)
+    }
+    tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
+        compilerOptions {
+            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21)
+        }
+    }
+    // Configure KSP JVM target
+    tasks.withType<com.google.devtools.ksp.gradle.KspTaskJvm>().configureEach {
+        compilerOptions {
+            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21)
+        }
+    }
+}
+
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 buildscript {
     repositories {
@@ -96,8 +114,8 @@ extra["buildTools"] = "35.0.0"
 extra["megaSdkVersion"] = "20250425.090537-rel"
 
 //JDK and Java Version
-extra["jdk"] = "17"
-extra["javaVersion"] = JavaVersion.VERSION_17
+extra["jdk"] = "21"
+extra["javaVersion"] = JavaVersion.VERSION_21
 
 /**
  * Checks whether to Suppress Warnings

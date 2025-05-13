@@ -67,3 +67,10 @@ wget-log
 
 credentials.properties
 .kotlin
+
+## VScode
+.vscode/
+
+##
+*/bin/
+**/bin/

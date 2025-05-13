@@ -21,7 +21,7 @@ android {
 
 dependencies {
 //    preBuiltSdkDependency(rootProject.extra)
-    implementation(files("../../dependency/sdk-20250425.090537-rel.aar"))
+    compileOnly(files("../../dependency/sdk-20250425.090537-rel.aar"))
 
     implementation(project(":core:formatter"))
     lintChecks(project(":lint"))
@@ -64,4 +64,18 @@ dependencies {
 
     testRuntimeOnly(testlib.junit.jupiter.engine)
     testImplementation(testlib.bundles.junit5.api)
+}
+
+// Set KSP JVM target specifically for this module
+tasks.withType<com.google.devtools.ksp.gradle.KspTaskJvm>().configureEach {
+    compilerOptions {
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21)
+    }
+}
+
+// Set Kotlin JVM target specifically for this module
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
+    compilerOptions {
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21)
+    }
 }

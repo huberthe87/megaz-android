@@ -30,7 +30,7 @@ dependencies {
     testImplementation(project(":core-ui-test"))
     lintChecks(project(":lint"))
 //    preBuiltSdkDependency(rootProject.extra)
-    implementation(files("../../dependency/sdk-20250425.090537-rel.aar"))
+    compileOnly(files("../../dependency/sdk-20250425.090537-rel.aar"))
 
     implementation(project(":domain"))
     implementation(project(":data"))
@@ -71,4 +71,18 @@ dependencies {
     testImplementation(testlib.bundles.junit5.api)
     testImplementation(google.hilt.android.test)
     testImplementation(androidx.work.test)
+}
+
+// Set KSP JVM target specifically for this module
+tasks.withType<com.google.devtools.ksp.gradle.KspTaskJvm>().configureEach {
+    compilerOptions {
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21)
+    }
+}
+
+// Set Kotlin JVM target specifically for this module
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
+    compilerOptions {
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21)
+    }
 }
