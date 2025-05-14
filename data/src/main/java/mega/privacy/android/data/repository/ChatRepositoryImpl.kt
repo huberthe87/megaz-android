@@ -1107,7 +1107,9 @@ internal class ChatRepositoryImpl @Inject constructor(
     override suspend fun storeMessages(messages: List<CreateTypedMessageRequest>) {
         withContext(ioDispatcher) {
             chatStorageGateway.storeMessages(
-                messages = messages.map {
+                messages = messages.filter {
+                    it.message.isDeleted == false
+                }.map {
                     typedMessageEntityMapper(it)
                 },
                 richPreviews = messages.mapNotNull { request ->

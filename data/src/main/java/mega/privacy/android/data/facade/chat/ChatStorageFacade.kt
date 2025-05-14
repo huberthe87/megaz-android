@@ -6,6 +6,8 @@ import kotlinx.coroutines.flow.Flow
 import mega.privacy.android.data.database.chat.ChatDatabase
 import mega.privacy.android.data.database.dao.ChatMessageMetaDao
 import mega.privacy.android.data.database.dao.ChatNodeDao
+import mega.privacy.android.data.mapper.chat.messages.PendingMessageEntityMapper
+import mega.privacy.android.data.mapper.chat.paging.TypedMessageEntityMapper
 import mega.privacy.android.data.database.entity.chat.ChatGeolocationEntity
 import mega.privacy.android.data.database.entity.chat.ChatNodeEntity
 import mega.privacy.android.data.database.entity.chat.GiphyEntity
@@ -21,6 +23,7 @@ import mega.privacy.android.domain.entity.chat.messages.pending.UpdatePendingMes
 import mega.privacy.android.domain.entity.chat.messages.pending.UpdatePendingMessageStateAndPathRequest
 import mega.privacy.android.domain.entity.chat.messages.pending.UpdatePendingMessageStateRequest
 import mega.privacy.android.domain.entity.chat.messages.pending.UpdatePendingMessageTransferTagRequest
+import mega.privacy.android.domain.entity.chat.messages.pending.SavePendingMessageRequest
 import javax.inject.Inject
 
 /**
@@ -29,9 +32,13 @@ import javax.inject.Inject
  * Facade to encapsulate chat storage implementation
  *
  * @property database In memory chat database
+ * @property pendingMessageMapper Mapper for pending messages
+ * @property typedMessageMapper Mapper for typed messages
  */
 internal class ChatStorageFacade @Inject constructor(
     private val database: Lazy<ChatDatabase>,
+    private val pendingMessageMapper: PendingMessageEntityMapper,
+    private val typedMessageMapper: TypedMessageEntityMapper
 ) : ChatStorageGateway {
 
     /**
@@ -211,5 +218,23 @@ internal class ChatStorageFacade @Inject constructor(
 
     override suspend fun clearAllData() {
         database.get().clearAllTables()
+    }
+
+    override suspend fun deleteSendingMessageByTempId(tempId: Long) {
+        database.get().typedMessageDao().deleteSendingMessageByTempId(tempId)
+    }
+
+    override suspend fun storeMessages(requests: List<SavePendingMessageRequest>) {
+        if (requests.isEmpty()) {
+            return
+        }
+        val pendingEntities = requests.map { request ->
+            pendingMessageMapper(request)
+        }
+        storePendingMessages(pendingEntities)
+    }
+
+    override suspend fun deleteMessageById(chatId: Long, messageId: Long) {
+        database.get().typedMessageDao().deleteMessageById(chatId, messageId)
     }
 }

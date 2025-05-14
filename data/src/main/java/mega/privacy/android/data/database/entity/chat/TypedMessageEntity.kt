@@ -86,6 +86,6 @@ data class TypedMessageEntity(
     val isMine: Boolean,
     val textMessage: String?,
     val reactions: List<Reaction>,
-    @ColumnInfo(name = "does_exist") val exists: Boolean,
+    @ColumnInfo(name = "does_exist") val exists: Boolean
 ) : ChatMessageInfo
 

@@ -582,4 +582,5 @@ interface ChatMessageRepository {
 
     fun clearPendingMessagesCompressionProgress()
 
+    suspend fun deleteSendingMessageByTempId(tempId: Long)
 }

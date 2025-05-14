@@ -4,7 +4,11 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.runtime.Composable
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.Icon
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
@@ -14,6 +18,13 @@ import mega.privacy.android.shared.original.core.ui.controls.chat.ChatMessageCon
 import mega.privacy.android.shared.original.core.ui.controls.chat.messages.reaction.model.UIReaction
 import mega.privacy.android.shared.original.core.ui.theme.extensions.conditional
 import mega.privacy.android.domain.entity.chat.messages.TypedMessage
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
+import mega.privacy.android.icon.pack.R as IconPackR
+import androidx.compose.runtime.Composable
+import androidx.compose.foundation.layout.Row
+import androidx.compose.material3.Text
+import mega.privacy.android.domain.entity.chat.ChatMessageStatus
 
 /**
  * Avatar message
@@ -76,6 +87,8 @@ abstract class AvatarMessage : UiChatMessage {
         onNotSentClick: (TypedMessage) -> Unit,
         navHostController: NavHostController,
     ) {
+        val isError = message.isSendError()
+
         ChatMessageContainer(
             isMine = displayAsMine,
             showForwardIcon = shouldDisplayForwardIcon,
@@ -100,25 +113,53 @@ abstract class AvatarMessage : UiChatMessage {
             } else {
                 Alignment.Bottom
             },
-            isSendError = message.isSendError()
+            isSendError = isError
         ) { interactionEnabled ->
-            ContentComposable(
-                interactionEnabled = interactionEnabled,
-                onLongClick = {
-                    if (interactionEnabled) {
-                        onLongClick(message)
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+            ) {
+                val isPurelySending = message.isMine &&
+                        message.status == ChatMessageStatus.SENDING &&
+                        !isError
+
+                if (isPurelySending) {
+                    if (state.isOnline) {
+                        CircularProgressIndicator(
+                            modifier = Modifier
+                                .padding(end = 4.dp)
+                                .size(16.dp),
+                            strokeWidth = 2.dp
+                        )
+                    } else {
+                        Icon(
+                            painter = painterResource(id = IconPackR.drawable.ic_clock_rotate_medium_regular_outline),
+                            contentDescription = "Pending offline",
+                            modifier = Modifier
+                                .padding(end = 4.dp)
+                                .size(16.dp)
+                        )
                     }
-                },
-                initialiseModifier = {
-                    Modifier.contentInteraction(
-                        onNotSentClick = onNotSentClick,
-                        onClick = it,
-                        onLongClick = onLongClick,
-                        interactionEnabled = interactionEnabled
-                    )
-                },
-                navHostController = navHostController,
-            )
+                }
+
+                ContentComposable(
+                    interactionEnabled = interactionEnabled,
+                    onLongClick = {
+                        if (interactionEnabled) {
+                            onLongClick(message)
+                        }
+                    },
+                    initialiseModifier = { onClickPassedFromContent ->
+                        Modifier.contentInteraction(
+                            onNotSentClick = onNotSentClick,
+                            onClick = onClickPassedFromContent,
+                            onLongClick = { onLongClick(message) },
+                            interactionEnabled = interactionEnabled
+                        )
+                    },
+                    navHostController = navHostController,
+                )
+            }
         }
     }
 

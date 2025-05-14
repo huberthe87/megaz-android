@@ -48,6 +48,7 @@ import mega.privacy.android.domain.usecase.chat.message.MonitorPendingMessagesUs
 import mega.privacy.android.domain.usecase.chat.message.SetMessageSeenUseCase
 import mega.privacy.android.domain.usecase.chat.message.paging.GetChatPagingSourceUseCase
 import mega.privacy.android.domain.usecase.chat.message.reactions.MonitorReactionUpdatesUseCase
+import mega.privacy.android.domain.usecase.network.MonitorConnectivityUseCase
 import timber.log.Timber
 import javax.inject.Inject
 import kotlin.time.DurationUnit
@@ -77,6 +78,7 @@ class MessageListViewModel @Inject constructor(
     private val monitorReactionUpdatesUseCase: MonitorReactionUpdatesUseCase,
     private val monitorContactCacheUpdates: MonitorContactCacheUpdates,
     monitorPendingMessagesUseCase: MonitorPendingMessagesUseCase,
+    private val monitorConnectivityUseCase: MonitorConnectivityUseCase,
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
 ) : ViewModel() {
 
@@ -109,6 +111,7 @@ class MessageListViewModel @Inject constructor(
         monitorContactCacheUpdate()
         monitorMessageUpdates()
         monitorReactionUpdates()
+        monitorConnectivity()
     }
 
     private fun monitorContactCacheUpdate() {
@@ -321,5 +324,15 @@ class MessageListViewModel @Inject constructor(
      */
     fun onScrollToLatestMessage() {
         _state.update { state -> state.copy(receivedMessages = emptySet()) }
+    }
+
+    private fun monitorConnectivity() {
+        viewModelScope.launch {
+            monitorConnectivityUseCase()
+                .catch { Timber.e(it, "Monitor connectivity threw an exception") }
+                .collect { isOnline ->
+                    _state.update { it.copy(isOnline = isOnline) }
+                }
+        }
     }
 }

@@ -266,7 +266,10 @@ internal class ChatMessageRepositoryImpl @Inject constructor(
     }
 
     override suspend fun deleteMessage(chatId: Long, msgId: Long) = withContext(ioDispatcher) {
-        megaChatApiGateway.deleteMessage(chatId, msgId)?.let { chatMessageMapper(it) }
+        chatStorageGateway.deleteMessageById(chatId, msgId)
+        megaChatApiGateway.deleteMessage(chatId, msgId)?.let {
+            chatMessageMapper(it)
+        }
     }
 
     override suspend fun revokeAttachmentMessage(chatId: Long, msgId: Long) =
@@ -371,5 +374,9 @@ internal class ChatMessageRepositoryImpl @Inject constructor(
 
     override fun clearPendingMessagesCompressionProgress() {
         compressionProgressFlow.value = emptyMap()
+    }
+
+    override suspend fun deleteSendingMessageByTempId(tempId: Long) {
+        chatStorageGateway.deleteSendingMessageByTempId(tempId)
     }
 }

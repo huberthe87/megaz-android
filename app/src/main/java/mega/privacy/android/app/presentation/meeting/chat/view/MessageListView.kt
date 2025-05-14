@@ -220,6 +220,7 @@ internal fun MessageListView(
                             ?: 0L,
                         isInSelectMode = isInSelectMode,
                         isChecked = isInSelectMode && currentItem.id in selectedItems,
+                        isOnline = state.isOnline,
                         lastItemAvatarPosition = if (index == lastVisibleIndex.intValue) {
                             lastItemAvatarPosition
                         } else if (!currentItem.displayAsMine

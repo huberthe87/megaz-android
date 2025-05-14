@@ -8,6 +8,7 @@ import androidx.room.Query
 import androidx.room.Transaction
 import mega.privacy.android.data.database.entity.chat.MetaTypedMessageEntity
 import mega.privacy.android.data.database.entity.chat.TypedMessageEntity
+import mega.privacy.android.domain.entity.chat.ChatMessageStatus
 import mega.privacy.android.domain.entity.chat.ChatMessageType
 
 /**
@@ -55,7 +56,7 @@ interface TypedMessageDao {
      *
      * @param chatId
      */
-    @Query("SELECT messageId FROM typed_messages WHERE chatId = :chatId")
+    @Query("SELECT messageId FROM typed_messages WHERE chatId = :chatId AND isDeleted = 0")
     suspend fun getMsgIdsByChatId(chatId: Long): List<Long>
 
     /**
@@ -77,7 +78,7 @@ interface TypedMessageDao {
      * @param chatId
      * @return
      */
-    @Query("SELECT messageId FROM typed_messages WHERE chatId = :chatId AND type = :type ORDER BY timestamp DESC")
+    @Query("SELECT messageId FROM typed_messages WHERE chatId = :chatId AND type = :type AND isDeleted = 0 ORDER BY timestamp DESC")
     suspend fun getMessageIdsByType(chatId: Long, type: ChatMessageType): List<Long>
 
     /**
@@ -87,7 +88,7 @@ interface TypedMessageDao {
      * @param msgId
      * @return String with Reactions if any.
      */
-    @Query("SELECT reactions FROM typed_messages WHERE chatId = :chatId AND messageId = :msgId")
+    @Query("SELECT reactions FROM typed_messages WHERE chatId = :chatId AND messageId = :msgId AND isDeleted = 0")
     suspend fun getMessageReactions(chatId: Long, msgId: Long): String?
 
     /**
@@ -97,7 +98,7 @@ interface TypedMessageDao {
      * @param msgId Message ID
      * @param reactions Updated reactions
      */
-    @Query("UPDATE typed_messages SET reactions = :reactions WHERE chatId = :chatId AND messageId = :msgId")
+    @Query("UPDATE typed_messages SET reactions = :reactions WHERE chatId = :chatId AND messageId = :msgId AND isDeleted = 0")
     suspend fun updateMessageReactions(chatId: Long, msgId: Long, reactions: String)
 
     /**
@@ -115,7 +116,7 @@ interface TypedMessageDao {
      * @param truncateTimestamp
      * @return matching message ids
      */
-    @Query("SELECT messageId FROM typed_messages WHERE chatId = :chatId AND timestamp <= :truncateTimestamp")
+    @Query("SELECT messageId FROM typed_messages WHERE chatId = :chatId AND timestamp <= :truncateTimestamp AND isDeleted = 0")
     fun getMsgIdsByChatIdAndLatestDate(chatId: Long, truncateTimestamp: Long): List<Long>
 
     /**
@@ -125,7 +126,7 @@ interface TypedMessageDao {
      * @param msgId Message ID
      * @param exists If the content in message exists
      */
-    @Query("UPDATE typed_messages SET does_exist = :exists WHERE chatId = :chatId AND messageId = :msgId")
+    @Query("UPDATE typed_messages SET does_exist = :exists WHERE chatId = :chatId AND messageId = :msgId AND isDeleted = 0")
     suspend fun updateExists(chatId: Long, msgId: Long, exists: Boolean)
 
 
@@ -136,6 +137,21 @@ interface TypedMessageDao {
      * @param msgId Message ID
      * @return True if the content in message exists
      */
-    @Query("SELECT does_exist FROM typed_messages WHERE chatId = :chatId AND messageId = :msgId")
+    @Query("SELECT does_exist FROM typed_messages WHERE chatId = :chatId AND messageId = :msgId AND isDeleted = 0")
     suspend fun getExists(chatId: Long, msgId: Long): Boolean?
+
+    /**
+     * Delete sending message by temp id and status
+     */
+    @Query("DELETE FROM typed_messages WHERE tempId = :tempId AND status = :status")
+    suspend fun deleteSendingMessageByTempId(
+        tempId: Long,
+        status: ChatMessageStatus = ChatMessageStatus.SENDING,
+    )
+
+    /**
+     * Mark a message as deleted by id (soft delete)
+     */
+    @Query("UPDATE typed_messages SET isDeleted = 1 WHERE messageId = :messageId AND chatId = :chatId")
+    suspend fun deleteMessageById(chatId: Long, messageId: Long)
 }

@@ -14,5 +14,6 @@ data class MessageListUiState(
     val isJumpingToLastSeenMessage: Boolean = false,
     val userUpdate: UserUpdate? = null,
     val receivedMessages: Set<Long> = emptySet(),
-    val extraUnreadCount: Int = 0
+    val extraUnreadCount: Int = 0,
+    val isOnline: Boolean = true,
 )

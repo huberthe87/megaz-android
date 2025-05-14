@@ -64,6 +64,8 @@ import timber.log.Timber
 import java.util.concurrent.TimeUnit
 import mega.privacy.android.shared.resources.R as sharedR
 import mega.privacy.android.app.presentation.chat.list.model.ChatTab
+import nz.mega.sdk.MegaApiJava
+import nz.mega.sdk.MegaFuseFlags
 import javax.inject.Inject
 
 /**
@@ -131,6 +133,7 @@ class ChatTabsViewModel @Inject constructor(
     fun getState(): StateFlow<ChatsTabState> = state
 
     init {
+        megaChatApiGateway.setLogLevel(MegaApiJava.LOG_LEVEL_DEBUG)
         signalChatPresence()
         requestChats()
         retrieveChatStatus()

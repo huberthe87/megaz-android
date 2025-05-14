@@ -12,6 +12,7 @@ import mega.privacy.android.data.database.entity.chat.TypedMessageEntity
 import mega.privacy.android.domain.entity.chat.ChatMessageType
 import mega.privacy.android.domain.entity.chat.PendingMessageState
 import mega.privacy.android.domain.entity.chat.messages.pending.UpdatePendingMessageRequest
+import mega.privacy.android.domain.entity.chat.messages.pending.SavePendingMessageRequest
 
 /**
  * Chat storage gateway
@@ -187,4 +188,26 @@ interface ChatStorageGateway {
      * Clear all typed messages
      */
     suspend fun clearAllData()
+
+    /**
+     * Delete sending message by temp ID
+     *
+     * @param tempId Temporary ID of the message to delete
+     */
+    suspend fun deleteSendingMessageByTempId(tempId: Long)
+
+    /**
+     * Store messages (This seems to be for pending messages based on SavePendingMessageRequest)
+     *
+     * @param requests List of SavePendingMessageRequest
+     */
+    suspend fun storeMessages(requests: List<SavePendingMessageRequest>)
+
+    /**
+     * Delete a message by its ID from local storage.
+     *
+     * @param chatId Chat ID of the message
+     * @param messageId Message ID of the message
+     */
+    suspend fun deleteMessageById(chatId: Long, messageId: Long)
 }

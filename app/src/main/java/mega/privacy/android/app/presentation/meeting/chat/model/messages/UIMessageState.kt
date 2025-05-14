@@ -13,6 +13,7 @@ import mega.privacy.android.domain.entity.chat.ChatScheduledMeeting
  * @property isInSelectMode
  * @property isChecked
  * @property lastItemAvatarPosition the position for the avatar in case it's the last visible message in the list and needs to bedrawn, null otherwise.
+ * @property isOnline
  */
 data class UIMessageState(
     val chatTitle: String?,
@@ -22,4 +23,5 @@ data class UIMessageState(
     val isInSelectMode: Boolean,
     val isChecked: Boolean,
     val lastItemAvatarPosition: LastItemAvatarPosition?,
+    val isOnline: Boolean = true
 )
